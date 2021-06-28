@@ -7,20 +7,20 @@ import firebase from 'firebase';
 
 
 function App() {
-  const [todos, setTodos] =  useState(['ascd','asswd']);//Hook
+  const [todos, setTodos] =  useState([]);//Hook
   const [input, setInput]= useState('');
 
   //when this app load, we need to listen the database and fetch todos as they get added/removed
   
   useEffect(()=>{
     //This code.. fires when the app.js loads
-      db.collection('todos').onSnapshot(snapshot=>{
-        setTodos(snapshot.docs.map(doc=>doc.data().todo))
+      db.collection('todos').orderBy('timestamp','desc').onSnapshot(snapshot=>{
+        setTodos(snapshot.docs.map(doc=>({ id: doc.id, todo: doc.data().todo})))
       })
   },[]);
 
 
-  const addTodo= (event)=>{
+  const addTodo = (event) => {
     event.preventDefault();//It prevent the page keep refreshing when u press submit
     
     db.collection('todos').add({
@@ -29,7 +29,7 @@ function App() {
     })
 
     setTodos([...todos,input])
-    //'...arrname' is spreading using in ES6 to append the string with new values wihout deleting old values
+    //'...arrname' is spreading using in ES6 to append the string with new values wihout replacing old values
 
     setInput('');//clearing up the input after hitting submit button
   }
@@ -40,7 +40,7 @@ function App() {
         <form>
             <FormControl>
                 <InputLabel>Write a todo task</InputLabel>
-                <Input value={input} onChange={event=>setInput(event.target.value)}/>            
+                <Input value = {input} onChange = { event => setInput( event.target.value )}/>            
             </FormControl>
             <Button color="primary" variant="contained" 
                     type='submit' 
@@ -51,7 +51,7 @@ function App() {
         </form>      
         <ul>
             {todos.map(todo => (
-              <Todo text={todo}/>
+              <Todo key = {todo.id} task = {todo}/>
             ))}
         </ul>
     </div>
